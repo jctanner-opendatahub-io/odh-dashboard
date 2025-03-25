@@ -21,5 +21,7 @@ resources:
   - fetch-nim-account.rbac.yaml
 images:
   - name: oauth-proxy
-    newName: registry.redhat.io/openshift4/ose-oauth-proxy
-    digest: sha256:4f8d66597feeb32bb18699326029f9a71a5aca4a57679d636b876377c2e95695
+    # newName: registry.redhat.io/openshift4/ose-oauth-proxy
+    newName: registry.tannerjc.net/odh/oauth-proxy-hack:2025-03-25T133617Z
+    # digest: sha256:4f8d66597feeb32bb18699326029f9a71a5aca4a57679d636b876377c2e95695
+    digest: sha256:53d80276e2da5d6e88a98781d4273c226320eba357eb1f2a8da7e786e32da230
