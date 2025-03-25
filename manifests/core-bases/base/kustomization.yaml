@@ -25,4 +25,5 @@ images:
     newName: registry.tannerjc.net/odh/oauth-proxy-hack:latest
     # digest: sha256:4f8d66597feeb32bb18699326029f9a71a5aca4a57679d636b876377c2e95695
     # digest: sha256:baa4eea958767a4377c95a2db58c5cdc198eb5a68833bdf88015bbdb8a1f3902
-    digest: sha256:17bf5d6adc8cd943788dd7ff202bd8700bc57f6d38f7044f54b0a4c7f69ce89b
+    # digest: sha256:17bf5d6adc8cd943788dd7ff202bd8700bc57f6d38f7044f54b0a4c7f69ce89b
+    digest: sha256:5b844e570f2f5b64b5a8886a733d8d798bfc35277333923eeae8a0a64ebd0db2
