@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: odh-dashboard
+spec:
+  selector:
+    deployment: odh-dashboard
+  ports:
+  - protocol: TCP
+    targetPort: 8080
+    port: 8080
