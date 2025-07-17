@@ -5,9 +5,9 @@ metadata:
 spec:
   parentRefs:
   - name: odh-gateway
-    namespace: openshift-gateway
+    namespace: openshift-ingress
   hostnames:
-  - "odh-dashboard.$(dashboard-domain)"
+  - "odh-gateway.odh.apps-crc.testing"
   rules:
   - matches:
     - path:
