@@ -7,7 +7,7 @@ spec:
   - name: odh-gateway
     namespace: openshift-ingress
   hostnames:
-  - "odh-gateway.odh.apps-crc.testing"
+  - "gateway.apps-crc.testing"
   rules:
   - matches:
     - path:
