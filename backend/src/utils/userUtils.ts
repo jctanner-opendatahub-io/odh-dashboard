@@ -60,6 +60,7 @@ export const getUser = async (
   request: FastifyRequest,
 ): Promise<OpenShiftUser> => {
   const accessToken = request.headers[USER_ACCESS_TOKEN] as string;
+  fastify.log.info(`Attempting to get user with token: ${accessToken ? 'token provided' : 'no token'}`);
   if (!accessToken) {
     const error = createCustomError(
       'Unauthorized',
@@ -78,6 +79,7 @@ export const getUser = async (
       '~',
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
+    fastify.log.info({ user: userResponse.body }, 'Got user object');
     return userResponse.body as OpenShiftUser;
   } catch (e) {
     const error = createCustomError(
@@ -97,10 +99,12 @@ export const getUserInfo = async (
 
   try {
     const userOauth = await getUser(fastify, request);
-    return {
+    const userInfo = {
       userName: userOauth.metadata.name,
       userID: userOauth.metadata.annotations?.['toolchain.dev.openshift.com/sso-user-id'],
     };
+    fastify.log.info({ userInfo }, 'Retrieved user info');
+    return userInfo;
   } catch (e) {
     if (DEV_MODE) {
       if (isImpersonating()) {

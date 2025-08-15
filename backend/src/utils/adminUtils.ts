@@ -91,7 +91,11 @@ export const isUserAdmin = async (
   namespace: string,
 ): Promise<boolean> => {
   const isAdmin: boolean = await isUserClusterRole(fastify, username, namespace);
-  return isAdmin || (await getGroupsConfig(fastify, fastify.kube.customObjectsApi, username));
+  const inAdminGroup = await getGroupsConfig(fastify, fastify.kube.customObjectsApi, username);
+  fastify.log.info(
+    `User admin check for '${username}': cluster role=${isAdmin}, in admin group=${inAdminGroup}`,
+  );
+  return isAdmin || inAdminGroup;
 };
 
 export const isUserAllowed = async (
@@ -105,12 +109,14 @@ export const isUserAllowed = async (
     if (allowedGroupsList.includes(SYSTEM_AUTHENTICATED)) {
       return true;
     } else {
-      return await checkUserInGroups(
+      const isAllowed = await checkUserInGroups(
         fastify,
         fastify.kube.customObjectsApi,
         allowedGroupsList,
         username,
       );
+      fastify.log.info(`User allowed check for '${username}': ${isAllowed}`);
+      return isAllowed;
     }
   } catch (e) {
     fastify.log.error(e, 'Error determining isUserAllowed.');
@@ -146,6 +152,9 @@ export const isUserClusterRole = async (
     const groups = await getAllGroupsByUser(fastify.kube.customObjectsApi, username);
     const isAdminClusterRoleBinding = checkRoleBindings(clusterrolebinding.body, username, groups);
     const isAdminRoleBinding = checkRoleBindings(rolebinding.body, username, groups);
+    fastify.log.info(
+      `User cluster role check for '${username}': cluster role binding=${isAdminClusterRoleBinding}, role binding=${isAdminRoleBinding}`,
+    );
     return isAdminClusterRoleBinding || isAdminRoleBinding;
   } catch (e) {
     fastify.log.error(
@@ -168,11 +177,13 @@ const checkUserInGroups = async (
         groupUsers?.includes(userName) ||
         groupUsers?.includes(`${KUBE_SAFE_PREFIX}${userName}`)
       ) {
+        fastify.log.info(`User '${userName}' is in group '${group}'`);
         return true;
       }
     } catch (e) {
       fastify.log.error(e, 'Error checking if user is in group.');
     }
   }
+  fastify.log.info(`User '${userName}' is not in any of the required groups`);
   return false;
 };

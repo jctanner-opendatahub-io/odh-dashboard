@@ -36,7 +36,11 @@ export const getAllGroupsByUser = async (
       'groups',
     );
     const groups = adminGroupResponse.body as GroupCustomObject;
-    return groups.items.filter((x) => x.users?.includes(username)).map((x) => x.metadata?.name);
+    const userGroups = groups.items
+      .filter((x) => x.users?.includes(username))
+      .map((x) => x.metadata?.name);
+    console.log(`User ${username} is in groups: ${userGroups.join(', ')}`);
+    return userGroups;
   } catch (e) {
     throw new Error(`Failed to list groups filtered by username: ${e.message}.`);
   }
