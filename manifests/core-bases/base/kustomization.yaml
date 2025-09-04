@@ -9,8 +9,8 @@ resources:
   - auth-delegator.clusterrolebinding.yaml
   - cluster-monitoring-role-binding.yaml
   - deployment.yaml
-  - routes.yaml
   - service.yaml
+  - httproute.yaml
   - oauth.secret.yaml
   - fetch-builds-and-images.rbac.yaml
   - image-puller.clusterrolebinding.yaml
@@ -21,6 +21,22 @@ resources:
   - fetch-nim-account.rbac.yaml
   - aggregate-permissions.rbac.yaml
 images:
-  - name: oauth-proxy
-    newName: registry.redhat.io/openshift4/ose-oauth-proxy
-    digest: sha256:4f8d66597feeb32bb18699326029f9a71a5aca4a57679d636b876377c2e95695
+  - name: odh-dashboard
+    newName: quay.io/opendatahub/odh-dashboard
+    newTag: v2.10.0
+  - name: kube-rbac-proxy
+    #newName: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9
+    #digest: sha256:a3fc879a64405b2a75a9e3cbc68301e368ce24a02ffc4adc61a2083ac15d7f58
+    newName: registry.tannerjc.net/kube-rbac-proxy
+    #digest: sha256:40dfe978a4fff9362a35eeedfe3cd692a9b551d14a2d9a253ed862269b10501f
+    #digest: sha256:217ced047813f523aacb291758a88e4e7e00c1a728f595bef6c3ba3d6c6f0476
+    #digest: sha256:8d62039ac165bb80866e556499b1a960bda56fb191e20abb5a321f48a575eeb1
+    digest: sha256:1331086fdb9da62f026f03a9310bf96656a5c64ff086b6b4f59e024cbe629cf5
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/parentRefs/0/namespace
+      value: openshift-ingress
+  target:
+    kind: HTTPRoute
+    name: odh-dashboard-route

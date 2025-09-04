@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: odh-dashboard
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       deployment: odh-dashboard
@@ -69,81 +69,34 @@ spec:
             - mountPath: /etc/ssl/certs/odh-ca-bundle.crt
               name: odh-ca-cert
               subPath: odh-ca-bundle.crt
-        - name: oauth-proxy
+        - name: kube-rbac-proxy
           args:
-            - --https-address=:8443
-            - --provider=openshift
-            - --upstream=http://localhost:8080
-            - --tls-cert=/etc/tls/private/tls.crt
-            - --tls-key=/etc/tls/private/tls.key
-            - --client-id=dashboard-oauth-client
-            - --client-secret-file=/etc/oauth/client/secret
-            - --scope=user:full
-            - --cookie-secret-file=/etc/oauth/config/cookie_secret
-            - --cookie-expire=23h0m0s
-            - --pass-access-token
-            - '--openshift-delegate-urls={"/": {"resource": "projects", "verb": "list"}}'
-            - --skip-auth-regex=^/metrics
-          image: oauth-proxy
+            - --secure-listen-address=0.0.0.0:8443
+            - --upstream=http://127.0.0.1:8080/
+            #- --ignore-paths=/
+            - --logtostderr=true
+            - --v=10
+            - --token-header=x-forwarded-access-token
+            - --tls-cert-file=/etc/tls/private/tls.crt
+            - --tls-private-key-file=/etc/tls/private/tls.key
+          image: kube-rbac-proxy
           ports:
             - containerPort: 8443
               name: dashboard-ui
-          livenessProbe:
-            httpGet:
-              path: /oauth/healthz
-              port: 8443
-              scheme: HTTPS
-            initialDelaySeconds: 30
-            timeoutSeconds: 1
-            periodSeconds: 5
-            successThreshold: 1
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /oauth/healthz
-              port: 8443
-              scheme: HTTPS
-            initialDelaySeconds: 5
-            timeoutSeconds: 1
-            periodSeconds: 5
-            successThreshold: 1
-            failureThreshold: 3
           resources:
             limits:
-              cpu: 1000m
-              memory: 2Gi
+              cpu: 100m
+              memory: 256Mi
             requests:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 50m
+              memory: 128Mi
           volumeMounts:
             - mountPath: /etc/tls/private
               name: proxy-tls
-            - mountPath: /etc/oauth/config
-              name: oauth-config
-            - mountPath: /etc/oauth/client
-              name: oauth-client
-            - mountPath: /etc/pki/tls/certs/odh-trusted-ca-bundle.crt
-              name: odh-trusted-ca-cert
-              subPath: odh-trusted-ca-bundle.crt
-            - mountPath: /etc/ssl/certs/odh-trusted-ca-bundle.crt
-              name: odh-trusted-ca-cert
-              subPath: odh-trusted-ca-bundle.crt
-            - mountPath: /etc/pki/tls/certs/odh-ca-bundle.crt
-              name: odh-ca-cert
-              subPath: odh-ca-bundle.crt
-            - mountPath: /etc/ssl/certs/odh-ca-bundle.crt
-              name: odh-ca-cert
-              subPath: odh-ca-bundle.crt
       volumes:
         - name: proxy-tls
           secret:
             secretName: dashboard-proxy-tls
-        - name: oauth-config
-          secret:
-            secretName: dashboard-oauth-config-generated
-        - name: oauth-client
-          secret:
-            secretName: dashboard-oauth-client-generated
         - name: odh-trusted-ca-cert
           configMap:
             name: odh-trusted-ca-bundle
