@@ -75,6 +75,8 @@ spec:
             - --upstream=http://127.0.0.1:8080/
             #- --ignore-paths=/
             - --logtostderr=true
+            - --disable-authorization=true
+            - --debug-all-requests=true
             - --v=10
             - --token-header=x-forwarded-access-token
             - --tls-cert-file=/etc/tls/private/tls.crt
